@@ -1,15 +1,17 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-
-    public Text _score;
-
+    [SerializeField]
+    private Text _score;
     [SerializeField]
     private Text _ammoCount;
+    [SerializeField]
+    private Button _exitButton;
 
     private int _currentScore;
 
@@ -19,7 +21,6 @@ public class UIManager : MonoBehaviour
     {
         Instance = this;
     }
-
     void Start()
     {
         _currentScore = 0;
@@ -28,5 +29,20 @@ public class UIManager : MonoBehaviour
     {
         _currentScore += price;
         _score.text = "Score: " + _currentScore;
+    }
+
+    private void ExitApplication()
+    {
+        Application.Quit();
+    }
+
+    private void OnEnable()
+    {
+        _exitButton.onClick.AddListener(ExitApplication);
+    }
+
+    private void OnDisable()
+    {
+        _exitButton.onClick.RemoveListener(ExitApplication);
     }
 }

@@ -9,12 +9,13 @@ using UnityEngine.EventSystems;
 public class GameController : MonoBehaviour
 {
     private bool m_IsQuitting = false;
-    public GameObject _zombie;
-    public GameObject _respawnPoint;
-    private float _gameStartDelay = 10f;
-    public bool _isStarted;
+    [SerializeField]
+    private GameObject _respawnPoint;
+
+    private bool _isStarted;
     private DetectedPlane _detectedPlane;
-    public Camera FirstPersonCamera;
+    [SerializeField]
+    private Camera FirstPersonCamera;
     private DetectedPlaneGenerator _planeGen;
     private DetectedPlaneVisualizer _planeVis;
     private const float k_ModelRotation = 180.0f;
@@ -30,35 +31,28 @@ public class GameController : MonoBehaviour
     void Start()
     {
         QuitOnConnectionErrors();
-        //_planeGen.GetComponent<DetectedPlaneGenerator>();
         _planeGen = GetComponent<DetectedPlaneGenerator>();
         _planeVis = GetComponent<DetectedPlaneVisualizer>();
-        //_detectedPlane = GetComponent<DetectedPlane>();
-
     }
     void Update()
     {
-
         _UpdateApplicationLifecycle();
         Touch touch;
         if (Input.touchCount < 1 || (touch = Input.GetTouch(0)).phase != TouchPhase.Began)
         {
             return;
-        }
-
-        // Should not handle input if the player is pointing on UI.
+        }        
         if (EventSystem.current.IsPointerOverGameObject(touch.fingerId))
         {
             return;
         }
+
         TrackableHit hit;
         TrackableHitFlags raycastFilter = TrackableHitFlags.PlaneWithinPolygon |
             TrackableHitFlags.FeaturePointWithSurfaceNormal;
 
         if (Frame.Raycast(touch.position.x, touch.position.y, raycastFilter, out hit))
         {
-            // Use hit pose and camera pose to check if hittest is from the
-            // back of the plane, if it is, no need to create the anchor.
             if ((hit.Trackable is DetectedPlane) &&
                 Vector3.Dot(FirstPersonCamera.transform.position - hit.Pose.position,
                     hit.Pose.rotation * Vector3.up) < 0)
@@ -67,7 +61,6 @@ public class GameController : MonoBehaviour
             }
             else
             {
-                // Choose the Andy model for the Trackable that got hit.
                 GameObject prefab;
                 if (hit.Trackable is FeaturePoint)
                 {
@@ -94,18 +87,12 @@ public class GameController : MonoBehaviour
                     prefab = _respawnPoint;
                     _isStarted = true;
                 }
-                // Instantiate Andy model at the hit pose.
                 var RespawnPoint = Instantiate(prefab, hit.Pose.position, hit.Pose.rotation);
 
-                // Compensate for the hitPose rotation facing away from the raycast (i.e.
-                // camera).
                 RespawnPoint.transform.Rotate(0, k_ModelRotation, 0, Space.Self);
 
-                // Create an anchor to allow ARCore to track the hitpoint as understanding of
-                // the physical world evolves.
                 var anchor = hit.Trackable.CreateAnchor(hit.Pose);
 
-                // Make Andy model a child of the anchor.
                 RespawnPoint.transform.parent = anchor.transform;
             }
         }
@@ -174,10 +161,6 @@ public class GameController : MonoBehaviour
             m_IsQuitting = true;
             Invoke("_DoQuit", 0.5f);
         }
-    }
-    public void OnApplicationQuit()
-    {
-        Application.Quit();
     }
 }
 

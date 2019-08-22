@@ -10,21 +10,16 @@ public class HpBarScript : MonoBehaviour
     public float health;
     private int mCurrentValue;
     public static HpBarScript Instance { get; private set; }
+
     private void Awake()
     {
         Instance = this;
     }
-
     void Start()
     {        
         health = maxHealth;        
     }
 
-    
-    void Update()
-    {
-       
-    }
     public void Damage(float damage)
     {
         health -= damage;

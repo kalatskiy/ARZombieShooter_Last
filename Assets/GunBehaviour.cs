@@ -1,35 +1,29 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using GoogleARCore;
-using GoogleARCoreInternal;
 using UnityEngine.UI;
 
 public class GunBehaviour : MonoBehaviour
 {
-    public GameObject _bullet;
-    public GameObject _fireslot;    
-    public AudioSource[] _audio;
-    public Text _ammocount;
-    
+    [SerializeField]
+    private GameObject _bullet;
+    [SerializeField]
+    private GameObject _fireslot;
+    [SerializeField]
+    private AudioSource[] _audio;
 
-    public int _bullets;
+    private Text _ammocount;
+    private int _bullets;
     private float _coolDown = 0.75f;
     private float _canFire = 0f;
 
 
     void Start()
-    {
+    {        
         _bullet.GetComponent<BulletBehaviour>();
-        _bullets = 6;
-        
+        _bullets = 6;        
         _ammocount = GameObject.Find("AmmoCount").GetComponent<Text>();
     }
 
-    void Update()
-    {
-        _ammocount.text = "Ammo: " + _bullets;
-    }
     public void Shoot()
     {
         if (_bullets > 0)
@@ -38,6 +32,7 @@ public class GunBehaviour : MonoBehaviour
             {
                 Instantiate(_bullet, _fireslot.transform.position, _fireslot.transform.rotation);
                 _bullets--;
+                _ammocount.text = "Ammo: " + _bullets;
                 _canFire = Time.time + _coolDown;
                 _audio[2].Play();
             }
@@ -57,6 +52,6 @@ public class GunBehaviour : MonoBehaviour
         _audio[1].Play();
         yield return new WaitForSeconds(3f);
         _bullets = 6;
-    }
-    
+        _ammocount.text = "Ammo: " + _bullets;
+    }    
 }
